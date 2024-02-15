@@ -1,11 +1,19 @@
+import org.jetbrains.kotlin.konan.properties.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
     namespace = "com.mielechm.zftechnicaltask"
     compileSdk = 34
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.mielechm.zftechnicaltask"
@@ -18,6 +26,10 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        val properties: Properties = Properties()
+        properties.load(project.rootProject.file("local.properties").inputStream())
+        buildConfigField("String", "API_KEY", "\"${properties.getProperty("API_KEY")}\"")
+
     }
 
     buildTypes {
@@ -40,7 +52,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.1"
+        kotlinCompilerExtensionVersion = "1.5.7"
     }
     packaging {
         resources {
@@ -59,6 +71,44 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    // Coroutines
+    val coroutinesVersion = "1.7.3"
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
+
+    // Coroutine Lifecycle Scopes
+    val coroutinesLifecycleScopeVersion = "2.7.0"
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$coroutinesLifecycleScopeVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:$coroutinesLifecycleScopeVersion")
+
+    //Dagger - Hilt
+    val hiltVersion = "2.49"
+    implementation("com.google.dagger:hilt-android:$hiltVersion")
+    ksp("com.google.dagger:hilt-compiler:$hiltVersion")
+    ksp("com.google.dagger:dagger-compiler:$hiltVersion")
+    val androidxHiltVersion = "1.1.0"
+    ksp("androidx.hilt:hilt-compiler:$androidxHiltVersion")
+    implementation("androidx.hilt:hilt-navigation-compose:$androidxHiltVersion")
+    implementation("androidx.hilt:hilt-work:$androidxHiltVersion")
+
+    // Navigation
+    val navigationVersion = "2.7.7"
+    implementation("androidx.navigation:navigation-compose:$navigationVersion")
+
+    // Okhttp
+    val okhttpVersion = "4.12.0"
+    implementation("com.squareup.okhttp3:okhttp:$okhttpVersion")
+    implementation("com.squareup.okhttp3:logging-interceptor:$okhttpVersion")
+
+    // Retrofit
+    val retrofitVersion = "2.9.0"
+    implementation("com.squareup.retrofit2:retrofit:$retrofitVersion")
+    implementation("com.squareup.retrofit2:converter-gson:$retrofitVersion")
+
+
+    // Test
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
