@@ -1,6 +1,7 @@
 package com.mielechm.zftechnicaltask
 
 import android.app.Application
+import dagger.hilt.android.HiltAndroidApp
 
-class ZFTechnicalTaskApplication: Application() {
-}
+@HiltAndroidApp
+class ZFTechnicalTaskApplication: Application()

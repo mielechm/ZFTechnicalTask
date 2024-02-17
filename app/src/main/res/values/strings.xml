@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">ZF Technical Task</string>
+    <string name="vehicles_in_proximity_label">Number of vehicles in close range:</string>
+    <string name="proximity_label_close">Close</string>
+    <string name="proximity_label_far_away">Far away</string>
+    <string name="label_vehicle_id">Vehicle ID:</string>
+    <string name="label_proximity">Proximity</string>
 </resources>
