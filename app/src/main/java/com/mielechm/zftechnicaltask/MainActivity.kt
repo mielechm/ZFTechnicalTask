@@ -29,20 +29,18 @@ class MainActivity : ComponentActivity() {
                         VehiclesListScreen(navController)
                     }
                     composable(
-                        "vehicle_details_screen/{id}/{nearby}",
+                        "vehicle_details_screen/{id}",
                         arguments = listOf(navArgument("id") {
                             type = NavType.StringType
-                        }, navArgument("nearby"){
-                            type = NavType.IntType
                         })
                     ) {
                         val id = remember {
                             it.arguments?.getString("id")
                         }
-                        val nearby: Int = remember {
-                            it.arguments?.getInt("nearby") ?: 0
-                        }
-                        VehicleDetailsScreen(navController = navController, id = id.toString(),  nearbyVehicles = nearby)
+                        VehicleDetailsScreen(
+                            navController = navController,
+                            id = id.toString()
+                        )
                     }
                 }
             }

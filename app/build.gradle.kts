@@ -82,6 +82,7 @@ dependencies {
     val coroutinesLifecycleScopeVersion = "2.7.0"
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$coroutinesLifecycleScopeVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$coroutinesLifecycleScopeVersion")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:$coroutinesLifecycleScopeVersion")
 
     //Dagger - Hilt
     val hiltVersion = "2.49"

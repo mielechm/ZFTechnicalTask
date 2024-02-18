@@ -17,7 +17,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,24 +25,28 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.mielechm.zftechnicaltask.R
 import com.mielechm.zftechnicaltask.data.model.VehicleDetailsItem
+import com.mielechm.zftechnicaltask.viewmodel.VehiclesViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VehicleDetailsScreen(
     navController: NavController,
     id: String,
-    nearbyVehicles: Int,
-    viewModel: VehicleDetailsViewModel = hiltViewModel()
+    viewModel: VehiclesViewModel = hiltViewModel()
 ) {
 
-    val isLoading by viewModel.isLoading.collectAsState()
-    val loadError by viewModel.loadError.collectAsState()
-    val vehicleDetails by viewModel.vehicleDetails.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val loadError by viewModel.loadError.collectAsStateWithLifecycle()
+    val vehicleDetails by viewModel.vehicleDetails.collectAsStateWithLifecycle()
+    val nearbyVehicles by viewModel.vehiclesNearby.collectAsStateWithLifecycle()
 
-    viewModel.getVehicleDetails(id)
+    LaunchedEffect(key1 = true) {
+        viewModel.getVehicleDetails(id)
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Scaffold(topBar = {
