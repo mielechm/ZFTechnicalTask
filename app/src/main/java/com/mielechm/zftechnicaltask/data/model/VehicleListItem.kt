@@ -1,6 +1,6 @@
 package com.mielechm.zftechnicaltask.data.model
 
 data class VehicleListItem(
-    val id: String,
-    val proximity: Proximity
+    var id: String = "",
+    var proximity: Proximity = Proximity(0.0, "")
 )
