@@ -61,7 +61,7 @@ fun VehiclesListScreen(
                     .padding(padding),
                 contentAlignment = Alignment.Center
             ) {
-                if (isLoading) {
+                if (isLoading && vehicles.isEmpty()) {
                     CircularProgressIndicator(
                         modifier = Modifier
                             .align(Alignment.Center)

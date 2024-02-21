@@ -11,6 +11,7 @@ import com.mielechm.zftechnicaltask.repositories.VehiclesRepository
 import com.mielechm.zftechnicaltask.util.Resource
 import com.mielechm.zftechnicaltask.util.locationLausanne
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -39,68 +40,75 @@ class VehiclesViewModel @Inject constructor(
     private val _vehicleDetails = MutableStateFlow(VehicleDetailsItem())
     val vehicleDetails = _vehicleDetails.asStateFlow()
 
+    private var jobForGettingList: Job? = null
+    private var jobForGettingDetails: Job? = null
+
     init {
-        getVehicles()
+        jobForGettingList = viewModelScope.launch {
+            while (isActive) {
+                getVehicles()
+                delay(5000)
+            }
+        }
+        jobForGettingList?.start()
     }
 
     fun getVehicles() {
         _isLoading.value = true
         viewModelScope.launch {
-            while (isActive) {
-                when (val result = repository.getVehicles()) {
-                    is Resource.Error -> {
-                        _isLoading.value = false
-                        _loadError.value = result.message.toString()
-                    }
-
-                    is Resource.Success -> {
-                        var counter = 0
-                        val vehicleItems = result.data!!.map {
-                            val details = repository.getVehicleDetails(it.vehicleId).data!!
-
-                            val distanceResults = FloatArray(2)
-                            Location.distanceBetween(
-                                locationLausanne.latitude,
-                                locationLausanne.longitude,
-                                details.location.latitude,
-                                details.location.longitude,
-                                distanceResults
-                            )
-                            val distance = distanceResults[0].toDouble()
-                            VehicleListItem(
-                                id = it.vehicleId,
-                                proximity = Proximity(
-                                    distance, if (distance < 1000) {
-                                        counter++
-                                        "${Distance.CLOSE.literal} (%.2f m)".format(
-                                            Locale.ENGLISH,
-                                            distance
-                                        )
-                                    } else {
-                                        "${Distance.FAR_AWAY.literal} (%.2f m)".format(
-                                            Locale.ENGLISH,
-                                            distance
-                                        )
-                                    }
-                                )
-                            )
-                        }
-
-                        _isLoading.value = false
-                        _loadError.value = ""
-                        _vehicles.value = vehicleItems
-                        _vehiclesNearby.value = counter
-                    }
+            when (val result = repository.getVehicles()) {
+                is Resource.Error -> {
+                    _isLoading.value = false
+                    _loadError.value = result.message.toString()
                 }
-                delay(5000)
+
+                is Resource.Success -> {
+                    var counter = 0
+                    val vehicleItems = result.data!!.map {
+                        val details = repository.getVehicleDetails(it.vehicleId).data!!
+
+                        val distanceResults = FloatArray(2)
+                        Location.distanceBetween(
+                            locationLausanne.latitude,
+                            locationLausanne.longitude,
+                            details.location.latitude,
+                            details.location.longitude,
+                            distanceResults
+                        )
+                        val distance = distanceResults[0].toDouble()
+                        VehicleListItem(
+                            id = it.vehicleId,
+                            proximity = Proximity(
+                                distance, if (distance < 1000) {
+                                    counter++
+                                    "${Distance.CLOSE.literal} (%.2f m)".format(
+                                        Locale.ENGLISH,
+                                        distance
+                                    )
+                                } else {
+                                    "${Distance.FAR_AWAY.literal} (%.2f m)".format(
+                                        Locale.ENGLISH,
+                                        distance
+                                    )
+                                }
+                            )
+                        )
+                    }
+
+                    _isLoading.value = false
+                    _loadError.value = ""
+                    _vehicles.value = vehicleItems
+                    _vehiclesNearby.value = counter
+                }
             }
         }
+
 
     }
 
     fun getVehicleDetails(id: String) {
         _isLoading.value = true
-        viewModelScope.launch {
+        jobForGettingDetails = viewModelScope.launch {
             while (isActive) {
                 when (val result = repository.getVehicleDetails(id)) {
                     is Resource.Error -> {
@@ -142,6 +150,16 @@ class VehiclesViewModel @Inject constructor(
                 delay(5000)
             }
         }
+        jobForGettingDetails?.start()
+
+    }
+
+    fun stopUpdatesForList() {
+        jobForGettingList?.cancel()
+    }
+
+    fun stopUpdatesForDetails() {
+        jobForGettingDetails?.cancel()
     }
 
 }
